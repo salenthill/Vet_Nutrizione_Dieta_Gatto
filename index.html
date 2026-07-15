@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compositore dieta felina — CREA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F3F4EF;
+    --paper-raised: #FBFBF8;
+    --ink: #202B24;
+    --ink-soft: #5B6B60;
+    --line: #D9DBD1;
+    --pine: #2F5D50;
+    --pine-dark: #1F423A;
+    --ochre: #B6752D;
+    --brick: #A6402F;
+    --good: #3F7A5C;
+    --good-bg: #E7F0EA;
+    --warn-bg: #FBF0E3;
+    --bad-bg: #FBEAE6;
+
+    --c1: #8B3A3A; /* carni */
+    --c2: #2B6CA3; /* pesce/uova/latticini/legumi */
+    --c3: #B6752D; /* cereali/amidi */
+    --c4: #3F7A3F; /* verdura/frutta */
+    --c5: #C9A227; /* grassi/oli */
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+
+  header{
+    margin-bottom: 40px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 28px;
+  }
+
+  .eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pine);
+    margin-bottom: 14px;
+  }
+
+  h1{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(28px, 4vw, 40px);
+    margin: 0 0 12px;
+    color: var(--pine-dark);
+    letter-spacing: -0.01em;
+  }
+
+  header p{
+    max-width: 640px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    font-size: 15px;
+    margin: 0;
+  }
+
+  h2{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 21px;
+    color: var(--pine-dark);
+    margin: 0 0 16px;
+  }
+
+  .card{
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 28px;
+    margin-bottom: 28px;
+  }
+
+  .table-scroll{
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+  }
+
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+    font-size: 14px;
+  }
+
+  thead th{
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: #EEEFE8;
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+
+  tbody td{
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td{ border-bottom: none; }
+
+  .num{
+    font-family: 'IBM Plex Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .row-tab{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .dot{
+    width: 9px; height: 9px; border-radius: 50%;
+    flex: none;
+  }
+
+  .page-label{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    display:block;
+    margin-top:2px;
+  }
+
+  select{
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    min-width: 220px;
+  }
+
+  select:focus, input:focus, button:focus{
+    outline: 2px solid var(--pine);
+    outline-offset: 1px;
+  }
+
+  .pct-input{
+    width: 72px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    text-align: right;
+  }
+
+  .chips{
+    display:flex; gap:8px; flex-wrap:wrap;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+  }
+  .chips span b{ color: var(--ink); font-weight: 600; }
+
+  .total-row{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    margin-top: 18px;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .total-indicator{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .total-indicator .badge{
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+  }
+
+  .badge-ok{ background: var(--good-bg); color: var(--good); }
+  .badge-off{ background: var(--warn-bg); color: var(--ochre); }
+
+  button#generateBtn{
+    background: var(--pine);
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 7px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14.5px;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  button#generateBtn:hover{ background: var(--pine-dark); }
+
+  .totale-td{
+    font-weight: 700;
+    background: #EEF2EE;
+  }
+
+  #results{ display:none; }
+  #results.show{ display:block; }
+
+  .metrics{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .metric{
+    border-radius: 9px;
+    padding: 18px 18px 16px;
+    border: 1px solid var(--line);
+  }
+
+  .metric .label{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+
+  .metric .value{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 28px;
+    color: var(--pine-dark);
+    margin-bottom: 6px;
+  }
+
+  .metric .sub{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  .metric.status-good{ background: var(--good-bg); border-color: #cfe4d8; }
+  .metric.status-good .value{ color: var(--good); }
+  .metric.status-off{ background: var(--warn-bg); border-color: #ecd9be; }
+  .metric.status-off .value{ color: var(--ochre); }
+
+  .hint{
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 10px;
+    line-height:1.5;
+  }
+
+  footer{
+    margin-top: 40px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  @media (max-width: 720px){
+    .metrics{ grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Nutrizione felina · dati CREA</div>
+    <h1>Componi la dieta</h1>
+    <p>Scegli un alimento per ciascuna delle 5 pagine della tabella nutrizionale e imposta la percentuale che occuperà nella dieta. I valori (Umidità, Proteine, Estrattivi inazotati, Estratto etereo, Fibra) vengono importati automaticamente da ogni alimento selezionato.</p>
+  </header>
+
+  <section class="card">
+    <h2>1 — Selezione alimenti</h2>
+    <div class="table-scroll">
+      <table id="dietTable">
+        <thead>
+          <tr>
+            <th>Pagina / alimento</th>
+            <th class="num">U %</th>
+            <th class="num">P %</th>
+            <th class="num">ES %</th>
+            <th class="num">EE %</th>
+            <th class="num">F %</th>
+            <th class="num">% dieta</th>
+          </tr>
+        </thead>
+        <tbody id="dietTableBody"><!-- righe generate via JS --></tbody>
+      </table>
+    </div>
+
+    <div class="total-row">
+      <div class="total-indicator">
+        Totale percentuali: <span id="totalPct">0</span>%
+        <span class="badge" id="totalBadge">—</span>
+      </div>
+      <button id="generateBtn">Genera dieta →</button>
+    </div>
+    <div class="hint">Il calcolo può essere generato anche se il totale non è esattamente 100%; il badge segnala lo scostamento.</div>
+  </section>
+
+  <section id="results">
+    <div class="card">
+      <h2>2 — Alimenti selezionati</h2>
+      <div class="table-scroll">
+        <table id="table1">
+          <thead>
+            <tr>
+              <th>Alimento</th>
+              <th>Pagina</th>
+              <th class="num">% dieta</th>
+              <th class="num">U %</th>
+              <th class="num">P %</th>
+              <th class="num">ES %</th>
+              <th class="num">EE %</th>
+              <th class="num">F %</th>
+            </tr>
+          </thead>
+          <tbody id="table1Body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3 — Contributo alla dieta (per 100 g)</h2>
+      <div class="table-scroll">
+        <table id="table2">
+          <thead>
+            <tr>
+              <th>Alimento</th>
+              <th class="num">% dieta</th>
+              <th class="num">U</th>
+              <th class="num">P</th>
+              <th class="num">ES</th>
+              <th class="num">EE</th>
+              <th class="num">F</th>
+            </tr>
+          </thead>
+          <tbody id="table2Body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>4 — Verifica condizioni</h2>
+      <div class="metrics">
+        <div class="metric" id="fiberCard">
+          <div class="label">Fibra totale</div>
+          <div class="value" id="fiberValue">—</div>
+          <div class="sub">target ≈ 2,69 %</div>
+        </div>
+        <div class="metric" id="edCard">
+          <div class="label">Densità energetica (ED)</div>
+          <div class="value" id="edValue">—</div>
+          <div class="sub" id="edSub">ED = P·3,5 + EE·3,8 + ES·3,5</div>
+        </div>
+        <div class="metric" id="ratioCard">
+          <div class="label">Quota proteica su ED</div>
+          <div class="value" id="ratioValue">—</div>
+          <div class="sub">target ≈ 27,32 %</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Fonte dati: CREA — tabella di composizione degli alimenti · crea.gov.it</footer>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// DATI NUTRIZIONALI (da tabelle_nutrizionali.pdf)
+// ogni voce: [nome, Umidità, Protidi, Estrattivi inazotati, Estratto etereo, Fibra, Ceneri]
+// ---------------------------------------------------------------------------
+const PAGES = [
+  {
+    label: "Pagina 1 — Carni",
+    color: "var(--c1)",
+    items: [
+      ["Carne bovina I taglio", 75.2,21.8,0.0,1.8,0.0,1.2],
+      ["Carne bovina II taglio", 75.0,20.9,0.0,3.2,0.0,0.9],
+      ["Cuore bovino", 75.5,16.8,0.5,6.0,0.0,1.2],
+      ["Fegato bovino", 70.0,20.0,5.9,4.4,0.0,0.0],
+      ["Carne bufalina", 74.9,22.0,0.0,1.1,0.0,2.0],
+      ["Carne suina magra", 75.2,20.2,0.0,3.2,0.0,1.4],
+      ["Cuore suini", 72.0,18.3,0.4,9.4,0.0,0.0],
+      ["Fegato suino", 70.0,22.8,1.5,4.8,0.0,0.9],
+      ["Carne di coniglio", 74.9,19.9,0.0,4.3,0.0,0.9],
+      ["Carne di pollo", 76.1,19.4,0.0,3.6,0.0,0.9],
+      ["Petto di pollo", 74.9,23.3,0.0,0.8,0.0,1.0],
+      ["Fegato avicoli", 70.0,22.8,1.5,6.3,0.0,0.0],
+      ["Cuori avicoli", 77.9,14.1,0.2,5.1,0.0,2.7],
+      ["Carne di tacchino", 74.9,21.9,0.0,2.4,0.0,0.8],
+      ["Petto di tacchino", 73.9,24.0,0.0,1.2,0.0,0.9],
+    ]
+  },
+  {
+    label: "Pagina 2 — Pesce, uova, latticini, legumi",
+    color: "var(--c2)",
+    items: [
+      ["Merluzzo", 80.8,17.3,0.0,0.6,0.0,1.3],
+      ["Sogliola", 79.5,16.9,0.8,1.4,0.0,1.4],
+      ["Tonno sott'olio", 62.3,25.2,0.0,10.1,0.0,2.4],
+      ["Tonno al naturale", 67.5,21.5,0.1,8.1,0.0,2.8],
+      ["1 Uovo (circa 50 g)", 77.1,12.4,0.0,8.7,0.0,1.8],
+      ["Yogurt intero", 87.0,3.8,4.3,3.9,0.0,1.0],
+      ["Latte intero past", 87.0,3.3,4.9,3.6,0.0,1.2],
+      ["Caciotta", 54.8,17.3,0.5,21.3,0.0,6.1],
+      ["Parmigiano", 31.4,32.4,0.0,29.7,0.0,6.5],
+      ["Fagioli secchi", 10.3,20.2,47.7,2.0,17.3,2.5],
+      ["Ceci secchi", 10.3,20.9,46.9,6.3,13.6,2.0],
+      ["Lenticchie secche", 11.2,22.7,51.1,1.0,13.8,0.2],
+      ["Piselli secchi", 13.0,21.7,48.2,2.0,15.0,0.1],
+      ["Soia secca", 9.5,36.9,23.2,19.1,11.0,0.3],
+    ]
+  },
+  {
+    label: "Pagina 3 — Cereali e amidi",
+    color: "var(--c3)",
+    items: [
+      ["Pasta", 10.8,13.5,72.7,1.2,1.7,0.1],
+      ["Pasta uovo", 10.5,13.0,71.0,2.4,1.7,1.4],
+      ["Riso brillato", 12.0,6.7,79.4,0.4,1.0,0.5],
+      ["Riso integrale", 12.0,7.5,76.4,1.9,1.9,0.3],
+      ["Riso soffiato", 5.6,6.0,85.1,1.0,1.0,1.3],
+      ["Mais granella", 12.5,9.2,72.1,3.8,2.0,0.4],
+      ["Orzo", 12.0,9.4,72.7,1.5,9.2,0.2],
+      ["Patata", 80.0,2.0,16.0,0.1,1.8,0.1],
+      ["Pane raffermo", 42.0,3.5,57.5,0.6,0.4,0.0],
+    ]
+  },
+  {
+    label: "Pagina 4 — Verdura e frutta",
+    color: "var(--c4)",
+    items: [
+      ["Carote", 87.0,1.1,7.6,0.2,3.1,1.0],
+      ["Zucchini", 93.6,1.5,1.7,0.1,1.2,1.9],
+      ["Broccoli", 90.0,3.0,3.1,0.4,3.1,0.4],
+      ["Spinaci", 90.1,3.4,2.9,0.7,1.9,1.0],
+      ["Pomodori", 93.0,1.0,3.5,0.2,2.0,0.3],
+      ["Fagiolini", 90.5,2.1,2.4,0.1,2.9,2.0],
+      ["Zucca", 89.0,1.1,3.5,0.1,5.5,0.8],
+      ["Banana", 78.8,1.2,17.4,0.3,1.8,0.5],
+      ["Mela", 85.2,0.2,10.0,0.0,2.6,2.0],
+      ["Crusca", 8.2,14.1,26.6,5.5,42.4,3.2],
+      ["Polpe di barbabietola", 11.6,6.0,73.6,0.4,4.9,3.5],
+    ]
+  },
+  {
+    label: "Pagina 5 — Grassi e oli",
+    color: "var(--c5)",
+    items: [
+      ["Burro", 14.1,0.8,1.1,83.4,0.0,0.6],
+      ["Olio di arachidi", 0.0,0.0,0.0,99.9,0.0,0.1],
+      ["Olio di mais", 0.0,0.0,0.0,99.9,0.0,0.1],
+      ["Olio d'oliva", 0.0,0.0,0.0,99.9,0.0,0.1],
+      ["Margarina", 13.0,0.6,0.4,84.0,0.0,2.0],
+      ["Lardo", 1.0,0.0,0.0,99.0,0.0,0.0],
+      ["Lievito di birra", 71.0,12.1,1.1,0.4,6.9,8.5],
+    ]
+  },
+];
+
+const TARGET_FIBER = 2.69;
+const TARGET_RATIO = 27.32;
+const FIBER_TOL = 0.3;
+const RATIO_TOL = 1.5;
+
+const DEFAULT_PCT = [45, 10, 20, 15, 10];
+
+// ---------------------------------------------------------------------------
+// COSTRUZIONE TABELLA DI INPUT
+// ---------------------------------------------------------------------------
+const tbody = document.getElementById('dietTableBody');
+
+PAGES.forEach((page, idx) => {
+  const tr = document.createElement('tr');
+  tr.dataset.pageIndex = idx;
+
+  // cella selezione
+  const tdSelect = document.createElement('td');
+  const tab = document.createElement('div');
+  tab.className = 'row-tab';
+  const dot = document.createElement('span');
+  dot.className = 'dot';
+  dot.style.background = page.color;
+  const selectWrap = document.createElement('div');
+
+  const select = document.createElement('select');
+  select.id = `select-${idx}`;
+  page.items.forEach((item, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = item[0];
+    select.appendChild(opt);
+  });
+
+  const pageLabel = document.createElement('span');
+  pageLabel.className = 'page-label';
+  pageLabel.textContent = page.label;
+
+  selectWrap.appendChild(select);
+  selectWrap.appendChild(pageLabel);
+  tab.appendChild(dot);
+  tab.appendChild(selectWrap);
+  tdSelect.appendChild(tab);
+
+  // celle valori importati (U P ES EE F)
+  const tdU = document.createElement('td'); tdU.className='num'; tdU.id=`u-${idx}`;
+  const tdP = document.createElement('td'); tdP.className='num'; tdP.id=`p-${idx}`;
+  const tdES = document.createElement('td'); tdES.className='num'; tdES.id=`es-${idx}`;
+  const tdEE = document.createElement('td'); tdEE.className='num'; tdEE.id=`ee-${idx}`;
+  const tdF = document.createElement('td'); tdF.className='num'; tdF.id=`f-${idx}`;
+
+  // cella percentuale
+  const tdPct = document.createElement('td'); tdPct.className='num';
+  const pctInput = document.createElement('input');
+  pctInput.type = 'number';
+  pctInput.className = 'pct-input';
+  pctInput.min = 0; pctInput.max = 100; pctInput.step = 0.1;
+  pctInput.id = `pct-${idx}`;
+  pctInput.value = DEFAULT_PCT[idx];
+  tdPct.appendChild(pctInput);
+
+  tr.appendChild(tdSelect);
+  tr.appendChild(tdU);
+  tr.appendChild(tdP);
+  tr.appendChild(tdES);
+  tr.appendChild(tdEE);
+  tr.appendChild(tdF);
+  tr.appendChild(tdPct);
+  tbody.appendChild(tr);
+
+  select.addEventListener('change', () => refreshRowValues(idx));
+  pctInput.addEventListener('input', updateTotal);
+});
+
+function getSelectedItem(pageIdx){
+  const select = document.getElementById(`select-${pageIdx}`);
+  const itemIdx = parseInt(select.value, 10);
+  return PAGES[pageIdx].items[itemIdx];
+}
+
+function refreshRowValues(pageIdx){
+  const item = getSelectedItem(pageIdx);
+  const [, U, P, ES, EE, F] = item;
+  document.getElementById(`u-${pageIdx}`).textContent = U.toFixed(1);
+  document.getElementById(`p-${pageIdx}`).textContent = P.toFixed(1);
+  document.getElementById(`es-${pageIdx}`).textContent = ES.toFixed(1);
+  document.getElementById(`ee-${pageIdx}`).textContent = EE.toFixed(1);
+  document.getElementById(`f-${pageIdx}`).textContent = F.toFixed(1);
+}
+
+function updateTotal(){
+  let total = 0;
+  for(let i=0;i<5;i++){
+    total += parseFloat(document.getElementById(`pct-${i}`).value) || 0;
+  }
+  document.getElementById('totalPct').textContent = total.toFixed(1).replace(/\.0$/,'');
+  const badge = document.getElementById('totalBadge');
+  if(Math.abs(total-100) < 0.05){
+    badge.textContent = 'OK';
+    badge.className = 'badge badge-ok';
+  } else {
+    badge.textContent = total > 100 ? `+${(total-100).toFixed(1)} sul 100%` : `mancano ${(100-total).toFixed(1)}`;
+    badge.className = 'badge badge-off';
+  }
+}
+
+// inizializzazione righe
+for(let i=0;i<5;i++) refreshRowValues(i);
+updateTotal();
+
+// ---------------------------------------------------------------------------
+// GENERAZIONE DIETA
+// ---------------------------------------------------------------------------
+document.getElementById('generateBtn').addEventListener('click', () => {
+  const rows = [];
+  for(let i=0;i<5;i++){
+    const item = getSelectedItem(i);
+    const pct = parseFloat(document.getElementById(`pct-${i}`).value) || 0;
+    rows.push({
+      name: item[0], page: PAGES[i].label, color: PAGES[i].color,
+      U:item[1], P:item[2], ES:item[3], EE:item[4], F:item[5], pct
+    });
+  }
+
+  // --- Tabella 1: alimenti selezionati ---
+  const t1 = document.getElementById('table1Body');
+  t1.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="row-tab"><span class="dot" style="background:${r.color}"></span>${r.name}</span></td>
+      <td>${r.page.replace(/^Pagina \d+ — /,'')}</td>
+      <td class="num">${r.pct}%</td>
+      <td class="num">${r.U.toFixed(1)}</td>
+      <td class="num">${r.P.toFixed(1)}</td>
+      <td class="num">${r.ES.toFixed(1)}</td>
+      <td class="num">${r.EE.toFixed(1)}</td>
+      <td class="num">${r.F.toFixed(1)}</td>
+    `;
+    t1.appendChild(tr);
+  });
+
+  // --- Tabella 2: contributi + totali ---
+  const t2 = document.getElementById('table2Body');
+  t2.innerHTML = '';
+  let totU=0, totP=0, totES=0, totEE=0, totF=0, totPct=0;
+  rows.forEach(r => {
+    const x = r.pct/100;
+    const cU = x*r.U, cP = x*r.P, cES = x*r.ES, cEE = x*r.EE, cF = x*r.F;
+    totU+=cU; totP+=cP; totES+=cES; totEE+=cEE; totF+=cF; totPct+=r.pct;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${r.name}</td>
+      <td class="num">${r.pct}%</td>
+      <td class="num">${cU.toFixed(2)}</td>
+      <td class="num">${cP.toFixed(2)}</td>
+      <td class="num">${cES.toFixed(2)}</td>
+      <td class="num">${cEE.toFixed(2)}</td>
+      <td class="num">${cF.toFixed(2)}</td>
+    `;
+    t2.appendChild(tr);
+  });
+  const trTot = document.createElement('tr');
+  trTot.innerHTML = `
+    <td class="totale-td">TOTALE</td>
+    <td class="num totale-td">${totPct}%</td>
+    <td class="num totale-td">${totU.toFixed(2)}</td>
+    <td class="num totale-td">${totP.toFixed(2)}</td>
+    <td class="num totale-td">${totES.toFixed(2)}</td>
+    <td class="num totale-td">${totEE.toFixed(2)}</td>
+    <td class="num totale-td">${totF.toFixed(2)}</td>
+  `;
+  t2.appendChild(trTot);
+
+  // --- Metriche ---
+  const ED = 3.5*totP + 3.8*totEE + 3.5*totES;
+  const ratio = ED > 0 ? (3.5*totP*100/ED) : 0;
+
+  const fiberCard = document.getElementById('fiberCard');
+  document.getElementById('fiberValue').textContent = totF.toFixed(2) + '%';
+  const fiberOk = Math.abs(totF - TARGET_FIBER) <= FIBER_TOL;
+  fiberCard.className = 'metric ' + (fiberOk ? 'status-good' : 'status-off');
+
+  document.getElementById('edValue').textContent = ED.toFixed(1);
+  document.getElementById('edSub').textContent =
+    `= ${totP.toFixed(2)}·3,5 + ${totEE.toFixed(2)}·3,8 + ${totES.toFixed(2)}·3,5`;
+
+  const ratioCard = document.getElementById('ratioCard');
+  document.getElementById('ratioValue').textContent = ratio.toFixed(2) + '%';
+  const ratioOk = Math.abs(ratio - TARGET_RATIO) <= RATIO_TOL;
+  ratioCard.className = 'metric ' + (ratioOk ? 'status-good' : 'status-off');
+
+  const resultsEl = document.getElementById('results');
+  resultsEl.classList.add('show');
+  if (typeof resultsEl.scrollIntoView === 'function') {
+    resultsEl.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+});
+</script>
+</body>
+</html>
